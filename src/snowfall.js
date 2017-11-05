@@ -18,6 +18,8 @@ const ctx = snowCanvas.getContext('2d');
 ctx.fillStyle = 'white';
 
 let platforms = [];
+const snowflakes = [];
+const snowflakesStatic = [];
 
 const map = () => {
 
@@ -32,30 +34,37 @@ const map = () => {
     
 }
 
-const snowflakes = [];
-
-for (var i=0; i<300; i++) {
+for (var i=0; i<200; i++) {
     var x = Math.random() * snowCanvas.width;
     var y = Math.random() * snowCanvas.height;
-    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), l: 3000 });
+    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2) });
 }
 
 const draw = () => {
     ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
     ctx.fillStyle = 'white';
+    snowflakesStatic.forEach((f, i) => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y-document.body.scrollTop, 3, 0, 2 * Math.PI, false);
+        ctx.fill();
+        if (f.l--===0) { delete snowflakesStatic[i]; }
+    });
     snowflakes.forEach((f) => {
         ctx.beginPath();
         ctx.arc(f.x, f.y-document.body.scrollTop, 3, 0, 2 * Math.PI, false);
         ctx.fill();
         f.x += Math.random()*f.vx - (f.vx/2);
         f.y += f.vy;
-        if (f.y>snowCanvas.height) { f.y = 0; f.x = Math.random()*snowCanvas.width; f.l=3000; }
+        if (f.y>snowCanvas.height) { f.y = 0; f.x = Math.random()*snowCanvas.width; }
         platforms.forEach((platform) => {
             if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) ) {
-                f.vy = f.vx = 0;
+                snowflakesStatic.push({ x: f.x, y: f.y, l: 1000 });
+                f.y = 0;
+                f.x = Math.random()*snowCanvas.width;
+                f.vx = 2;
+                f.vy = 1 + (Math.random()*2);
             }
         });
-        if (--f.l === 0) { f.y = 0; f.x = Math.random()*snowCanvas.width; f.vx = 2; f.vy = 1 + (Math.random()*2); f.l=3000; }
     });
     requestAnimationFrame(draw);
 }
