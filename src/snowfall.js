@@ -21,14 +21,14 @@ let platforms = [];
 const snowflakes = [];
 const snowflakesStatic = [];
 
-for (var i=0; i<2000; i++) {
+for (var i=0; i<1000; i++) {
     var x = Math.random() * snowCanvas.width;
     var y = Math.random() * snowCanvas.height;
     snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 2 + (Math.random()*3) });
 }
 
 const screenMap = () => {
-    let snow = document.querySelectorAll('.snow');
+    let snow = document.querySelectorAll('.rooftop');
     platforms = [];
     snow.forEach((snowEl) => {
         let bounds = snowEl.getClientRects();
