@@ -45,7 +45,7 @@ const draw = () => {
     ctx.fillStyle = 'white';
     snowflakesStatic.forEach((f, i) => {
         ctx.beginPath();
-        ctx.arc(f.x, f.y-document.body.scrollTop, 3, 0, 2 * Math.PI, false);
+        ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
         ctx.fill();
         if (f.l--===0) {
             delete snowflakesStatic[i];
@@ -63,7 +63,7 @@ const draw = () => {
         } else {
             platforms.forEach((platform) => {
                 if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
-                    snowflakesStatic.push({ x: f.x, y: f.y, l: 3000 });
+                    snowflakesStatic.push({ x: f.x, y: f.y, l: 3000, s: f.s });
                     f.y = 0;
                     f.x = Math.random()*snowCanvas.width;
                     f.vx = 2;
