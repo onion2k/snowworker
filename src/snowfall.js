@@ -34,10 +34,10 @@ const map = () => {
     
 }
 
-for (var i=0; i<500; i++) {
+for (var i=0; i<2000; i++) {
     var x = Math.random() * snowCanvas.width;
     var y = Math.random() * snowCanvas.height;
-    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 1 + (Math.random()*4) });
+    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 2 + (Math.random()*3) });
 }
 
 const draw = () => {
