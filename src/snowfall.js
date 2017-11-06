@@ -21,23 +21,19 @@ let platforms = [];
 const snowflakes = [];
 const snowflakesStatic = [];
 
-const map = () => {
-
-    let snow = document.querySelectorAll('.snow');
-    
-    platforms = [];
-    
-    snow.forEach((snowEl) => {
-        let bounds = snowEl.getClientRects();
-        platforms.push({ left: bounds[0].left, width: bounds[0].width, top: bounds[0].top });
-    });    
-    
-}
-
 for (var i=0; i<2000; i++) {
     var x = Math.random() * snowCanvas.width;
     var y = Math.random() * snowCanvas.height;
     snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 2 + (Math.random()*3) });
+}
+
+const screenMap = () => {
+    let snow = document.querySelectorAll('.snow');
+    platforms = [];
+    snow.forEach((snowEl) => {
+        let bounds = snowEl.getClientRects();
+        platforms.push({ left: bounds[0].left, width: bounds[0].width, top: bounds[0].top });
+    });
 }
 
 const draw = () => {
@@ -75,14 +71,14 @@ const draw = () => {
     requestAnimationFrame(draw);
 }
 
-map();
+screenMap();
 draw();
 
-var myEfficientFn = debounce(function() {
-	map();
+var debouncedMap = debounce(function() {
+	screenMap();
 }, 16);
 
-window.addEventListener('resize', myEfficientFn);
+window.addEventListener('resize', debouncedMap);
 
 function debounce(func, wait, immediate) {
 	var timeout;
