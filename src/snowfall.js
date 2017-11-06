@@ -3,6 +3,7 @@ require('../assets/index.html');
 require('../assets/index.css');
 
 const page = document.body.clientHeight;
+const pageHeight = document.body.offsetHeight;
 
 const snowCanvas = document.createElement('canvas');
 snowCanvas.style.position = 'fixed';
@@ -11,7 +12,6 @@ snowCanvas.style.left = '0';
 snowCanvas.width = document.body.clientWidth;
 snowCanvas.height = document.body.clientHeight;
 snowCanvas.style['pointer-events'] = 'none';
-
 document.body.appendChild(snowCanvas);
 
 const ctx = snowCanvas.getContext('2d');
@@ -34,10 +34,10 @@ const map = () => {
     
 }
 
-for (var i=0; i<200; i++) {
+for (var i=0; i<500; i++) {
     var x = Math.random() * snowCanvas.width;
     var y = Math.random() * snowCanvas.height;
-    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2) });
+    snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 1 + (Math.random()*4) });
 }
 
 const draw = () => {
@@ -47,24 +47,30 @@ const draw = () => {
         ctx.beginPath();
         ctx.arc(f.x, f.y-document.body.scrollTop, 3, 0, 2 * Math.PI, false);
         ctx.fill();
-        if (f.l--===0) { delete snowflakesStatic[i]; }
+        if (f.l--===0) {
+            delete snowflakesStatic[i];
+        }
     });
     snowflakes.forEach((f) => {
         ctx.beginPath();
-        ctx.arc(f.x, f.y-document.body.scrollTop, 3, 0, 2 * Math.PI, false);
+        ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
         ctx.fill();
         f.x += Math.random()*f.vx - (f.vx/2);
         f.y += f.vy;
-        if (f.y>snowCanvas.height) { f.y = 0; f.x = Math.random()*snowCanvas.width; }
-        platforms.forEach((platform) => {
-            if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) ) {
-                snowflakesStatic.push({ x: f.x, y: f.y, l: 1000 });
-                f.y = 0;
-                f.x = Math.random()*snowCanvas.width;
-                f.vx = 2;
-                f.vy = 1 + (Math.random()*2);
-            }
-        });
+        if (f.y>pageHeight) {
+            f.y = 0;
+            f.x = Math.random()*snowCanvas.width;
+        } else {
+            platforms.forEach((platform) => {
+                if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
+                    snowflakesStatic.push({ x: f.x, y: f.y, l: 3000 });
+                    f.y = 0;
+                    f.x = Math.random()*snowCanvas.width;
+                    f.vx = 2;
+                    f.vy = 1 + (Math.random()*2);
+                }
+            });    
+        }
     });
     requestAnimationFrame(draw);
 }

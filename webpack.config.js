@@ -37,11 +37,14 @@ module.exports = {
     },
     plugins: [
         new WebpackCleanupPlugin(),
-        // new UglifyJSPlugin(),
-        // new SriPlugin({
-        //     hashFuncNames: ['sha256', 'sha384'],
-        //     enabled: true
-        // }),
+        new CopyWebpackPlugin([
+            { from: 'assets' }
+        ]),
+        new UglifyJSPlugin(),
+        new SriPlugin({
+            hashFuncNames: ['sha256', 'sha384'],
+            enabled: true
+        }),
         // new HtmlWebpackPlugin(),
         new ExtractTextPlugin("snowfall.css"),
     ]
