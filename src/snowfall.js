@@ -1,6 +1,6 @@
 
-require('../assets/index.html');
-require('../assets/index.css');
+// require('../assets/index.html');
+// require('../assets/index.css');
 
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;

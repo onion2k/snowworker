@@ -41,11 +41,11 @@ module.exports = {
             { from: 'assets' }
         ]),
         new UglifyJSPlugin(),
-        new SriPlugin({
-            hashFuncNames: ['sha256', 'sha384'],
-            enabled: true
-        }),
-        // new HtmlWebpackPlugin(),
+        // new SriPlugin({
+        //     hashFuncNames: ['sha256', 'sha384'],
+        //     enabled: true
+        // }),
+        new HtmlWebpackPlugin({ template: 'assets/index.html' }),
         new ExtractTextPlugin("snowfall.css"),
     ]
 };
