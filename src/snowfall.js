@@ -1,7 +1,4 @@
 
-// require('../assets/index.html');
-// require('../assets/index.css');
-
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
 
@@ -23,7 +20,7 @@ const snowflakesStatic = [];
 
 for (var i=0; i<1000; i++) {
     var x = Math.random() * snowCanvas.width;
-    var y = Math.random() * snowCanvas.height;
+    var y = Math.random() * pageHeight;
     snowflakes.push({ x: x, y: y, vx: 4, vy: 1 + (Math.random()*2), s: 2 + (Math.random()*3) });
 }
 
@@ -71,15 +68,6 @@ const draw = () => {
     requestAnimationFrame(draw);
 }
 
-screenMap();
-draw();
-
-var debouncedMap = debounce(function() {
-	screenMap();
-}, 16);
-
-window.addEventListener('resize', debouncedMap);
-
 function debounce(func, wait, immediate) {
 	var timeout;
 	return function() {
@@ -94,3 +82,9 @@ function debounce(func, wait, immediate) {
 		if (callNow) func.apply(context, args);
 	};
 };
+
+var debouncedMap = debounce(function() { screenMap(); }, 16);
+window.addEventListener('resize', debouncedMap);
+
+screenMap();
+draw();

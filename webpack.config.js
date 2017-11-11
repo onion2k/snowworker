@@ -6,12 +6,12 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const SriPlugin = require ('webpack-subresource-integrity');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-module.exports = {
+const config = {
     entry: {
         app: ["./src/snowfall.js"]
     },
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: path.resolve(__dirname, "build"),
         publicPath: "/",
         filename: "snowfall.js",
         crossOriginLoading: "anonymous"
@@ -41,11 +41,26 @@ module.exports = {
             { from: 'assets' }
         ]),
         new UglifyJSPlugin(),
-        // new SriPlugin({
-        //     hashFuncNames: ['sha256', 'sha384'],
-        //     enabled: true
-        // }),
         new HtmlWebpackPlugin({ template: 'assets/index.html' }),
         new ExtractTextPlugin("snowfall.css"),
     ]
 };
+
+if (process.env.NODE_ENV === 'build' || process.env.NODE_ENV === 'release') {
+    config.plugins.push(
+        new SriPlugin({
+            hashFuncNames: ['sha256', 'sha384'],
+            enabled: true
+        })
+    );
+}
+
+if (process.env.NODE_ENV === 'release') {
+    config.plugins.push(
+        new CopyWebpackPlugin([
+            { from: 'build/snowfall.js', to: '../dist/snowfall.js' }
+        ])
+    )
+}
+
+module.exports = config;
