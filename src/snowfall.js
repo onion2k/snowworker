@@ -10,7 +10,7 @@ let delta, deltaCorrection;
 let prevTimestamp = Date.now();
 let fps = 60;
 let frameInterval = 1000 / fps;
-let timefactor = 1;
+let timefactor = 0.25;
 
 const snowCanvas = document.createElement('canvas');
 snowCanvas.style.position = 'fixed';
