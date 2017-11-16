@@ -1,3 +1,4 @@
+import SnowWorker from './snow.worker.js';
 
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
@@ -6,11 +7,11 @@ const snowflakesActive = 1000;
 const snowflakesLifetime = 1000;
 
 let timestamp;
-let delta, deltaCorrection;
+let delta, deltaDistance, deltaCorrection;
 let prevTimestamp = Date.now();
 let fps = 60;
 let frameInterval = 1000 / fps;
-let timefactor = 0.25;
+let timefactor = 1.0;
 
 const snowCanvas = document.createElement('canvas');
 snowCanvas.style.position = 'fixed';
@@ -35,7 +36,24 @@ for (var i=0; i<snowflakesActive; i++) {
     snowflakes.push({ x: x, y: y, vx: 80, vy: 40 + (Math.random()*60), s: 2 + (Math.random()*3) });
 }
 
-const screenMap = () => {
+if (window.Worker) {
+
+    const worker = new SnowWorker();
+
+    worker.onmessage = function(e) {
+        console.log('Message received from worker', e.data);
+    }
+
+    worker.postMessage({
+        type: 'init',
+        active: snowflakesActive,
+        width: snowCanvas.width,
+        height: pageHeight
+    });
+
+}
+
+    const screenMap = () => {
     let rooftops = document.querySelectorAll('.rooftop');
     platforms = [];
     rooftops.forEach((rooftopEl) => {
