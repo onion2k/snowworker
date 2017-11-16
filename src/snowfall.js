@@ -36,22 +36,22 @@ for (var i=0; i<snowflakesActive; i++) {
     snowflakes.push({ x: x, y: y, vx: 80, vy: 40 + (Math.random()*60), s: 2 + (Math.random()*3) });
 }
 
-// if (window.Worker) {
+if (window.Worker) {
 
-//     const worker = new SnowWorker();
+    const worker = new SnowWorker();
 
-//     worker.onmessage = function(e) {
-//         console.log('Message received from worker', e.data);
-//     }
+    worker.onmessage = function(e) {
+        console.log('Message received from worker', e.data);
+    }
 
-//     worker.postMessage({
-//         type: 'init',
-//         active: snowflakesActive,
-//         width: snowCanvas.width,
-//         height: pageHeight
-//     });
+    worker.postMessage({
+        type: 'init',
+        active: snowflakesActive,
+        width: snowCanvas.width,
+        height: pageHeight
+    });
 
-// }
+}
 
 const screenMap = () => {
     let rooftops = document.querySelectorAll('.rooftop');
