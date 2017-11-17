@@ -7,13 +7,6 @@ const snowflakesActive = 1000;
 const snowflakesLifetime = 1000;
 let snowWorker;
 
-let timestamp;
-let delta, deltaDistance, deltaCorrection;
-let prevTimestamp = Date.now();
-let fps = 60;
-let frameInterval = 1000 / fps;
-let timefactor = 1.0;
-
 const snowCanvas = document.createElement('canvas');
 snowCanvas.style.position = 'fixed';
 snowCanvas.style.top = '0';
@@ -26,27 +19,19 @@ document.body.appendChild(snowCanvas);
 const ctx = snowCanvas.getContext('2d');
 ctx.fillStyle = 'white';
 
-let platforms = [];
-
 if (window.Worker) {
-
     snowWorker = new SnowWorker();
-
     snowWorker.onmessage = function(e) {
         draw(e.data.snowflakes, e.data.snowflakesStatic);
     }
-
     snowWorker.postMessage({
         type: 'init',
         active: snowflakesActive,
         width: snowCanvas.width,
         height: pageHeight
     });
-
 } else {
-
     console.log("Snowfall requires webworkers because reasons.");
-
 }
 
 const screenMap = () => {
@@ -77,8 +62,6 @@ const draw = (snowflakes, snowflakesStatic) => {
         ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
         ctx.fill();
     });
-
-    prevTimestamp = timestamp;
 
 }
 
