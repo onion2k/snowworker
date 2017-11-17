@@ -26,6 +26,17 @@ class snowWorkerWW {
         this.update();
 
     }
+    screenmap() {
+        // snowflakesStatic.forEach((f,i) => {
+        //     let keep = false;
+        //     platforms.forEach((platform) => {
+        //         if ( (f.x > platform.left && f.x < platform.left+platform.width) ) {
+        //             keep = true;
+        //         }
+        //     });    
+        //     if (!keep) { delete snowflakesStatic[i]; }
+        // });
+    }
     update() {
 
         let timestamp = Date.now();
@@ -49,7 +60,7 @@ class snowWorkerWW {
                 //         f.vx = 80;
                 //         f.vy = 40 + (Math.random()*60);
                 //     }
-                // });    
+                // });
             }
         });
 
