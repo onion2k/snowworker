@@ -26,30 +26,25 @@ const ctx = snowCanvas.getContext('2d');
 ctx.fillStyle = 'white';
 
 let platforms = [];
-const snowflakes = [];
-const snowflakesStatic = [];
-
-//vx and vy are velocity in pixels per second
-for (var i=0; i<snowflakesActive; i++) {
-    var x = Math.random() * snowCanvas.width;
-    var y = Math.random() * pageHeight;
-    snowflakes.push({ x: x, y: y, vx: 80, vy: 40 + (Math.random()*60), s: 2 + (Math.random()*3) });
-}
 
 if (window.Worker) {
 
-    const worker = new SnowWorker();
+    const snowWorker = new SnowWorker();
 
-    worker.onmessage = function(e) {
-        console.log('Message received from worker', e.data);
+    snowWorker.onmessage = function(e) {
+        draw(e.data.snowflakes);
     }
 
-    worker.postMessage({
+    snowWorker.postMessage({
         type: 'init',
         active: snowflakesActive,
         width: snowCanvas.width,
         height: pageHeight
     });
+
+} else {
+
+    console.log("Snowfall requires webworkers because reasons.");
 
 }
 
@@ -60,69 +55,58 @@ const screenMap = () => {
         let bounds = rooftopEl.getClientRects();
         platforms.push({ left: bounds[0].left, width: bounds[0].width, top: bounds[0].top });
     });
-    snowflakesStatic.forEach((f,i) => {
-        let keep = false;
-        platforms.forEach((platform) => {
-            if ( (f.x > platform.left && f.x < platform.left+platform.width) ) {
-                keep = true;
-            }
-        });    
-        if (!keep) { delete snowflakesStatic[i]; }
-    });
+    // snowflakesStatic.forEach((f,i) => {
+    //     let keep = false;
+    //     platforms.forEach((platform) => {
+    //         if ( (f.x > platform.left && f.x < platform.left+platform.width) ) {
+    //             keep = true;
+    //         }
+    //     });    
+    //     if (!keep) { delete snowflakesStatic[i]; }
+    // });
 }
 
-const draw = () => {
+const draw = (snowflakes) => {
 
-    requestAnimationFrame(draw);
-    
-    timestamp = Date.now();
-    delta = timestamp - prevTimestamp;
+    ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
 
-    if (delta > frameInterval) {
+    // ctx.fillStyle = 'white';
+    // snowflakesStatic.forEach((f, i) => {
+    //     ctx.beginPath();
+    //     ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
+    //     ctx.fill();
+    //     if (f.l--===0) {
+    //         delete snowflakesStatic[i];
+    //     }
+    // });
 
-        deltaDistance = 1000/delta;
-        deltaCorrection = frameInterval/delta;
-        
-        ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
-        ctx.fillStyle = 'white';
-        snowflakesStatic.forEach((f, i) => {
-            ctx.beginPath();
-            ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
-            ctx.fill();
-            if (f.l--===0) {
-                delete snowflakesStatic[i];
-            }
-        });
+    snowflakes.forEach((f) => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
+        ctx.fill();
+        // f.x += (Math.random()*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * timefactor * deltaCorrection;
+        // f.y += (f.vy/deltaDistance) * timefactor * deltaCorrection;
+        // if (f.y>pageHeight) {
+        //     f.y = 0;
+        //     f.x = Math.random()*snowCanvas.width;
+        // } else {
+        //     platforms.forEach((platform) => {
+        //         if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
+        //             // snowflakesStatic.push({ x: f.x, y: f.y, l: snowflakesLifetime, s: f.s });
+        //             f.y = 0;
+        //             f.x = Math.random()*snowCanvas.width;
+        //             f.vx = 80;
+        //             f.vy = 40 + (Math.random()*60);
+        //         }
+        //     });    
+        // }
+    });
 
-        snowflakes.forEach((f) => {
-            ctx.beginPath();
-            ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
-            ctx.fill();
-            f.x += (Math.random()*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * timefactor * deltaCorrection;
-            f.y += (f.vy/deltaDistance) * timefactor * deltaCorrection;
-            if (f.y>pageHeight) {
-                f.y = 0;
-                f.x = Math.random()*snowCanvas.width;
-            } else {
-                platforms.forEach((platform) => {
-                    if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
-                        snowflakesStatic.push({ x: f.x, y: f.y, l: snowflakesLifetime, s: f.s });
-                        f.y = 0;
-                        f.x = Math.random()*snowCanvas.width;
-                        f.vx = 80;
-                        f.vy = 40 + (Math.random()*60);
-                    }
-                });    
-            }
-        });
-
-        prevTimestamp = timestamp;
-
-    }
+    prevTimestamp = timestamp;
 
 }
 
 window.addEventListener('resize', screenMap);
 
 screenMap();
-draw();
+// draw();
