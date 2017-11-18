@@ -7,9 +7,8 @@ class snowWorkerWW {
         this.active = data.active;
         this.width = data.width;
         this.height = data.height;
-        this.snowflakesLifetime = 1000;
+        this.snowflakesLifetime = data.lifetime;
         this.snowflakes = [];
-        this.snowflakesStatic = [];
         this.platforms = [];
         this.prevTimestamp = Date.now();
         this.fps = 60;
@@ -25,48 +24,49 @@ class snowWorkerWW {
     }
     screenmap(platforms) {
         this.platforms = platforms;
-        this.snowflakesStatic.forEach((f,i) => {
-            let keep = false;
-            platforms.forEach((platform) => {
-                if ( (f.x > platform.left && f.x < platform.left+platform.width) ) {
-                    keep = true;
-                }
-            });    
-            if (!keep) { delete this.snowflakesStatic[i]; }
+        this.snowflakes.forEach((f,i) => {
+            if (f.l>0) {
+                let keep = false;
+                platforms.forEach((platform) => {
+                    if ( (f.x > platform.left && f.x < platform.left+platform.width) ) { keep = true; }
+                });
+                if (!keep) { f.l=0; }
+            }
         });
     }
     update() {
+
         let timestamp = Date.now();
         let delta = timestamp - this.prevTimestamp;
         let deltaDistance = 1000/delta;
-        let deltaCorrection = this.frameInterval/delta;
-        this.snowflakesStatic.forEach((f, i) => {
-            if (f.l--===0) {
-                delete this.snowflakesStatic[i];
-            }
-        });
+        // let deltaCorrection = this.frameInterval/delta;
+
         this.snowflakes.forEach((f) => {
-            f.x += (Math.random()*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * this.timefactor * deltaCorrection;
-            f.y += (f.vy/deltaDistance) * this.timefactor * deltaCorrection;
-            if (f.y>this.height) {
-                f.y = 0;
-                f.x = Math.random()*this.width;
+            if (f.l > 0) {
+                if (f.l--===0) {
+                    f.y = 0;
+                    f.x = Math.random()*this.width;
+                    f.vx = 80;
+                    f.vy = 40 + (Math.random()*60);
+                }
             } else {
-                this.platforms.forEach((platform) => {
-                    if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
-                        this.snowflakesStatic.push({ x: f.x, y: f.y, l: this.snowflakesLifetime, s: f.s });
-                        f.y = 0;
-                        f.x = Math.random()*this.width;
-                        f.vx = 80;
-                        f.vy = 40 + (Math.random()*60);
-                    }
-                });
+                f.x += (Math.random()*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * this.timefactor;
+                f.y += (f.vy/deltaDistance) * this.timefactor;
+                if (f.y>this.height) {
+                    f.y = 0;
+                    f.x = Math.random()*this.width;
+                } else {
+                    this.platforms.forEach((platform) => {
+                        if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
+                            f.l = this.snowflakesLifetime;
+                        }
+                    });
+                }
             }
         });
-        s.postMessage({ snowflakes: this.snowflakes, snowflakesStatic: this.snowflakesStatic });
+        s.postMessage({ snowflakes: this.snowflakes });
         this.prevTimestamp = timestamp;
 
-        //should be raf?
         setTimeout(()=>{
             this.update();
         }, this.frameInterval);

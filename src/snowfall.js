@@ -4,7 +4,8 @@ const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
 
 const snowflakesActive = 1000;
-const snowflakesLifetime = 1000;
+const snowflakesLifetime = 500;
+let snowflakes = [];
 let snowWorker;
 
 const snowCanvas = document.createElement('canvas');
@@ -22,11 +23,12 @@ ctx.fillStyle = 'white';
 if (window.Worker) {
     snowWorker = new SnowWorker();
     snowWorker.onmessage = function(e) {
-        draw(e.data.snowflakes, e.data.snowflakesStatic);
+        snowflakes = e.data.snowflakes;
     }
     snowWorker.postMessage({
         type: 'init',
         active: snowflakesActive,
+        lifetime: snowflakesLifetime,
         width: snowCanvas.width,
         height: pageHeight
     });
@@ -47,15 +49,9 @@ const screenMap = () => {
     });
 }
 
-const draw = (snowflakes, snowflakesStatic) => {
+const draw = () => {
 
     ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
-
-    snowflakesStatic.forEach((f) => {
-        ctx.beginPath();
-        ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
-        ctx.fill();
-    });
 
     snowflakes.forEach((f) => {
         ctx.beginPath();
@@ -63,8 +59,11 @@ const draw = (snowflakes, snowflakesStatic) => {
         ctx.fill();
     });
 
+    requestAnimationFrame(draw);
+    
 }
 
 window.addEventListener('resize', screenMap);
 
 screenMap();
+draw();
