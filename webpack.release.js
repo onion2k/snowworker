@@ -32,6 +32,10 @@ const config = {
                     fallback: "style-loader",
                     use: "css-loader"
                 })
+            },
+            {
+                test: /\.worker\.js$/,
+                use: { loader: 'worker-loader' }
             }
         ]
     },
