@@ -35,7 +35,7 @@ const config = {
             },
             {
                 test: /\.worker\.js$/,
-                use: { loader: 'worker-loader' }
+                use: { loader: 'worker-loader', options: { name: 'snow.worker.js' } }
             }
         ]
     },
@@ -59,7 +59,8 @@ config.plugins.push(
 
 config.plugins.push(
     new CopyWebpackPlugin([
-        { from: 'build/snowfall.js', to: '../dist/snowfall.js' }
+        { from: 'build/snowfall.js', to: '../dist/snowfall.js' },
+        { from: 'build/snow.worker.js', to: '../dist/snow.worker.js' }
     ])
 )
 
