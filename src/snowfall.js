@@ -3,7 +3,7 @@ import SnowWorker from './snow.worker.js';
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
 
-const snowflakesActive = 2000;
+const snowflakesActive = 1500;
 const snowflakesLifetime = 1000;
 
 let snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
