@@ -3,8 +3,12 @@ import SnowWorker from './snow.worker.js';
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
 
-const snowflakesActive = 1000;
-const snowflakesLifetime = 500;
+const snowflakesActive = 2000;
+const snowflakesLifetime = 1000;
+
+let snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
+let snowflakesUInt16 = new Uint16Array(snowflakesSAB);
+
 let snowflakes = [];
 let snowWorker;
 
@@ -22,9 +26,7 @@ ctx.fillStyle = 'white';
 
 if (window.Worker) {
     snowWorker = new SnowWorker();
-    snowWorker.onmessage = function(e) {
-        snowflakes = e.data.snowflakes;
-    }
+    snowWorker.postMessage(snowflakesSAB);
     snowWorker.postMessage({
         type: 'init',
         active: snowflakesActive,
@@ -49,21 +51,24 @@ const screenMap = () => {
     });
 }
 
-const draw = () => {
+
+const drawSAB = () => {
 
     ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
 
-    snowflakes.forEach((f) => {
-        ctx.beginPath();
-        ctx.arc(f.x, f.y-document.body.scrollTop, f.s, 0, 2 * Math.PI, false);
-        ctx.fill();
-    });
+    for (var i=0; i<snowflakesActive; i++) {
 
-    requestAnimationFrame(draw);
+        ctx.beginPath();
+        ctx.arc(snowflakesUInt16[(i*3)+0], snowflakesUInt16[(i*3)+1]-document.body.scrollTop, snowflakesUInt16[(i*3)+2], 0, 2 * Math.PI, false);
+        ctx.fill();
+
+    }
+    
+    requestAnimationFrame(drawSAB);
     
 }
 
 window.addEventListener('resize', screenMap);
 
 screenMap();
-draw();
+drawSAB();

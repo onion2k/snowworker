@@ -1,5 +1,6 @@
 
 let s = self;
+let snowflakesUInt16;
 let snowWorkerInstance = undefined;
 
 class snowWorkerWW {
@@ -15,11 +16,15 @@ class snowWorkerWW {
         this.frameInterval = 1000 / this.fps;
         this.timefactor = 1;
         for (var i=0; i<this.active; i++) {
-            var x = Math.random() * this.width;
-            var y = Math.random() * this.height;
-            this.snowflakes.push({ x: x, y: y, vx: 80, vy: 40 + (Math.random()*60), s: 2 + (Math.random()*3) });
+            var x = Math.floor(Math.random() * this.width);
+            var y = Math.floor(Math.random() * this.height);
+            var s = Math.floor(2 + (Math.random()*3));
+            this.snowflakes.push({ x: x, y: y, vx: 80, vy: 40 + (Math.random()*60), s: s });
+            snowflakesUInt16[(i*3)+0] = x;
+            snowflakesUInt16[(i*3)+1] = y;
+            snowflakesUInt16[(i*3)+2] = s;
         }
-        s.postMessage({ snowflakes: this.snowflakes, snowflakesStatic: this.snowflakesStatic });
+        // s.postMessage({ snowflakes: this.snowflakes, snowflakesStatic: this.snowflakesStatic });
         this.update();
     }
     screenmap(platforms) {
@@ -39,9 +44,8 @@ class snowWorkerWW {
         let timestamp = Date.now();
         let delta = timestamp - this.prevTimestamp;
         let deltaDistance = 1000/delta;
-        // let deltaCorrection = this.frameInterval/delta;
 
-        this.snowflakes.forEach((f) => {
+        this.snowflakes.forEach((f, i) => {
             if (f.l > 0) {
                 if (f.l--===0) {
                     f.y = 0;
@@ -63,8 +67,11 @@ class snowWorkerWW {
                     });
                 }
             }
+            snowflakesUInt16[(i*3)+0] = f.x;
+            snowflakesUInt16[(i*3)+1] = f.y;
+            snowflakesUInt16[(i*3)+2] = f.s;
         });
-        s.postMessage({ snowflakes: this.snowflakes });
+        // s.postMessage({ snowflakes: this.snowflakes });
         this.prevTimestamp = timestamp;
 
         setTimeout(()=>{
@@ -83,5 +90,7 @@ s.addEventListener('message', (event) => {
         } else {
             snowWorkerInstance.screenmap(event.data.platforms);
         }
+    } else {
+        snowflakesUInt16 = new Uint16Array(event.data);
     }
 });
