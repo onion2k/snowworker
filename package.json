@@ -1,8 +1,8 @@
 {
-  "name": "snowfall",
+  "name": "snowworker",
   "version": "1.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Snow falling on a canvas",
+  "main": "snow.js",
   "files": [
     "dist"
   ],
