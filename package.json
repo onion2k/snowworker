@@ -4,7 +4,7 @@
   "description": "Snow falling on a canvas",
   "main": "snow.js",
   "files": [
-    "dist"
+    "snow.js"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

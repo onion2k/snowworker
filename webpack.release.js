@@ -1,13 +1,13 @@
 var path = require("path");
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-const WebpackCleanupPlugin = require('webpack-cleanup-plugin');
 
 const config = {
     entry: {
         app: ["./src/snow.single.js"]
     },
+    mode: "production",
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: path.resolve(__dirname, "."),
         publicPath: "/",
         filename: "snow.js",
         crossOriginLoading: "anonymous"
@@ -20,7 +20,6 @@ const config = {
 
     },
     plugins: [
-        new WebpackCleanupPlugin(),
         new UglifyJSPlugin()
     ]
 };
