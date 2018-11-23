@@ -8,12 +8,12 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const config = {
     entry: {
-        app: ["./src/snowfall.js"]
+        app: ["./src/snow.single.js"]
     },
     output: {
         path: path.resolve(__dirname, "build"),
         publicPath: "/",
-        filename: "snowfall.js",
+        filename: "snow.single.js",
         crossOriginLoading: "anonymous"
     },
     devServer: {
