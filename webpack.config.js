@@ -8,12 +8,13 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const config = {
     entry: {
-        app: ["./src/snowfall.js"]
+        app: ["./src/snow.js"]
     },
+    mode: "production",
     output: {
         path: path.resolve(__dirname, "build"),
         publicPath: "/",
-        filename: "snowfall.js",
+        filename: "snow.js",
         crossOriginLoading: "anonymous"
     },
     devServer: {
@@ -44,7 +45,7 @@ const config = {
         new CopyWebpackPlugin([
             { from: 'assets' }
         ]),
-        new UglifyJSPlugin(),
+        // new UglifyJSPlugin(),
         new HtmlWebpackPlugin({ template: 'assets/index.html' }),
         new ExtractTextPlugin("snowfall.css"),
     ]
@@ -62,7 +63,7 @@ if (process.env.NODE_ENV === 'build' || process.env.NODE_ENV === 'release') {
 if (process.env.NODE_ENV === 'release') {
     config.plugins.push(
         new CopyWebpackPlugin([
-            { from: 'build/snowfall.js', to: '../dist/snowfall.js' }
+            { from: './build/snowjs', to: '../dist/snow.js' }
         ])
     )
 }
