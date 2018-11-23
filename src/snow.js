@@ -101,7 +101,6 @@ const worker_fn = `
 var blob = new Blob([worker_fn], { type: "text/javascript" });
 let SnowWorker = new Worker(window.URL.createObjectURL(blob));
 
-
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
 
@@ -125,20 +124,8 @@ document.body.appendChild(snowCanvas);
 const ctx = snowCanvas.getContext('2d');
 ctx.fillStyle = 'white';
 
-if (window.Worker) {
-    SnowWorker.postMessage(snowflakesSAB);
-    SnowWorker.postMessage({
-        type: 'init',
-        active: snowflakesActive,
-        lifetime: snowflakesLifetime,
-        width: snowCanvas.width,
-        height: pageHeight
-    });
-} else {
-    console.log("Snowfall requires webworkers because reasons.");
-}
-
 const screenMap = () => {
+    console.log("Mapping");
     let rooftops = document.querySelectorAll('.rooftop');
     let platforms = [];
     rooftops.forEach((rooftopEl) => {
@@ -166,6 +153,20 @@ const drawSAB = () => {
     
     requestAnimationFrame(drawSAB);
     
+}
+
+if (window.Worker) {
+    SnowWorker.postMessage(snowflakesSAB);
+    SnowWorker.postMessage({
+        type: 'init',
+        active: snowflakesActive,
+        lifetime: snowflakesLifetime,
+        width: snowCanvas.width,
+        height: pageHeight
+    });
+    console.log(pageHeight, page);
+} else {
+    console.log("Snowfall requires webworkers because reasons.");
 }
 
 window.addEventListener('resize', screenMap);

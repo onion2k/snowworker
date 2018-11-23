@@ -3,7 +3,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 const config = {
     entry: {
-        app: ["./src/snow.single.js"]
+        app: ["./src/snow.js"]
     },
     mode: "production",
     output: {
