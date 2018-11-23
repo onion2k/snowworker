@@ -125,7 +125,6 @@ const ctx = snowCanvas.getContext('2d');
 ctx.fillStyle = 'white';
 
 const screenMap = () => {
-    console.log("Mapping");
     let rooftops = document.querySelectorAll('.rooftop');
     let platforms = [];
     rooftops.forEach((rooftopEl) => {
@@ -164,12 +163,11 @@ if (window.Worker) {
         width: snowCanvas.width,
         height: pageHeight
     });
-    console.log(pageHeight, page);
 } else {
     console.log("Snowfall requires webworkers because reasons.");
 }
 
 window.addEventListener('resize', screenMap);
+window.addEventListener('DOMContentLoaded', screenMap);
 
-screenMap();
 drawSAB();
