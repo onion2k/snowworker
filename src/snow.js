@@ -1,4 +1,4 @@
-const worker_fn = `
+const worker_sab = `
 
     let s = this;
     let snowflakesUInt16;
@@ -26,6 +26,7 @@ const worker_fn = `
                 snowflakesUInt16[(i*3)+2] = s;
             }
             // s.postMessage({ snowflakes: this.snowflakes, snowflakesStatic: this.snowflakesStatic });
+            this.update = this.update.bind(this);
             this.update();
         }
         screenmap(platforms) {
@@ -41,6 +42,8 @@ const worker_fn = `
             });
         }
         update() {
+
+            // console.log("Update", snowflakesUInt16[(1*3)+0], snowflakesUInt16[(1*3)+1], snowflakesUInt16[(1*3)+2])
 
             let timestamp = Date.now();
             let delta = timestamp - this.prevTimestamp;
@@ -72,17 +75,22 @@ const worker_fn = `
                 snowflakesUInt16[(i*3)+1] = f.y;
                 snowflakesUInt16[(i*3)+2] = f.s;
             });
-            // s.postMessage({ snowflakes: this.snowflakes });
+
+            if (!this.nonShared) {
+                s.postMessage({ snowflakes: this.snowflakes });
+            }
+
             this.prevTimestamp = timestamp;
-    
+
             setTimeout(()=>{
                 this.update();
-            }, this.frameInterval);
+            }, this.frameInterval)
     
         }
     }
     
     s.addEventListener('message', (event) => {
+
         if (event.data.type==='init') {
             snowWorkerInstance = new snowWorkerWW(event.data);
         } else if (event.data.type==='screenmap') {
@@ -92,14 +100,21 @@ const worker_fn = `
                 snowWorkerInstance.screenmap(event.data.platforms);
             }
         } else {
-            snowflakesUInt16 = new Uint16Array(event.data);
+            if (event.data.length > 0) {
+                this.nonShared = true;
+                snowflakesUInt16 = event.data;
+            } else {
+                this.nonShared = false;
+                snowflakesUInt16 = new Uint16Array(event.data);
+            }
         }
     });
     
 `
 
-var blob = new Blob([worker_fn], { type: "text/javascript" });
-let SnowWorker = new Worker(window.URL.createObjectURL(blob));
+let SnowWorker;
+let snowflakesSAB;
+let snowflakesUInt16;
 
 const page = document.body.clientHeight;
 const pageHeight = document.body.offsetHeight;
@@ -134,27 +149,44 @@ const screenMap = () => {
     });
 }
 
-
 const drawSAB = () => {
 
     ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
 
     for (var i=0; i<snowflakesActive; i++) {
-
         ctx.beginPath();
         ctx.arc(snowflakesUInt16[(i*3)+0], snowflakesUInt16[(i*3)+1]-document.body.scrollTop, snowflakesUInt16[(i*3)+2], 0, 2 * Math.PI, false);
         ctx.fill();
-
     }
     
     requestAnimationFrame(drawSAB);
     
 }
 
+const draw = (msg) => {
+
+    ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+
+    for (var i=0; i<snowflakesActive; i++) {
+        ctx.beginPath();
+        ctx.arc(msg.data.snowflakes[i].x, msg.data.snowflakes[i].y-document.body.scrollTop, msg.data.snowflakes[i].s, 0, 2 * Math.PI, false);
+        ctx.fill();
+    }
+    
+    // requestAnimationFrame(draw);
+    
+}
+
+
 if (window.Worker) {
+
+    let blob_sab = new Blob([worker_sab], { type: "text/javascript" });
+    SnowWorker = new Worker(window.URL.createObjectURL(blob_sab));
+
     if (window.SharedArrayBuffer) {
-        let snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
-        let snowflakesUInt16 = new Uint16Array(snowflakesSAB);
+        console.log("Snowfall with shared buffer.");
+        snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
+        snowflakesUInt16 = new Uint16Array(snowflakesSAB);
         SnowWorker.postMessage(snowflakesSAB);
         SnowWorker.postMessage({
             type: 'init',
@@ -166,6 +198,23 @@ if (window.Worker) {
         window.addEventListener('resize', screenMap);
         window.addEventListener('DOMContentLoaded', screenMap);
         drawSAB();
+    } else if (window.Uint16Array) {
+        console.log("Snowfall without shared buffer.");
+        // snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
+        snowflakesUInt16 = new Uint16Array(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
+        SnowWorker.postMessage(snowflakesUInt16);
+        SnowWorker.postMessage({
+            type: 'init',
+            active: snowflakesActive,
+            lifetime: snowflakesLifetime,
+            width: snowCanvas.width,
+            height: pageHeight
+        });
+        window.addEventListener('resize', screenMap);
+        window.addEventListener('DOMContentLoaded', screenMap);
+        SnowWorker.onmessage = (msg) =>{
+            draw(msg);
+        };
     } else {
         console.log("Snowfall requires SharedArrayBuffer.");
     }
