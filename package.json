@@ -1,6 +1,6 @@
 {
   "name": "snowworker",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Snow falling on a canvas",
   "main": "snow.js",
   "files": [
