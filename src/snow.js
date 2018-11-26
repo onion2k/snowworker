@@ -25,7 +25,6 @@ const worker_sab = `
                 snowflakesUInt16[(i*3)+1] = y;
                 snowflakesUInt16[(i*3)+2] = s;
             }
-            // s.postMessage({ snowflakes: this.snowflakes, snowflakesStatic: this.snowflakesStatic });
             this.update = this.update.bind(this);
             this.update();
         }
@@ -42,8 +41,6 @@ const worker_sab = `
             });
         }
         update() {
-
-            // console.log("Update", snowflakesUInt16[(1*3)+0], snowflakesUInt16[(1*3)+1], snowflakesUInt16[(1*3)+2])
 
             let timestamp = Date.now();
             let delta = timestamp - this.prevTimestamp;
@@ -143,6 +140,7 @@ const screenMap = () => {
         let bounds = rooftopEl.getClientRects();
         platforms.push({ left: bounds[0].left, width: bounds[0].width, top: bounds[0].top });
     });
+
     SnowWorker.postMessage({
         type: 'screenmap',
         platforms: platforms
@@ -173,8 +171,6 @@ const draw = (msg) => {
         ctx.fill();
     }
     
-    // requestAnimationFrame(draw);
-    
 }
 
 
@@ -195,12 +191,9 @@ if (window.Worker) {
             width: snowCanvas.width,
             height: pageHeight
         });
-        window.addEventListener('resize', screenMap);
-        window.addEventListener('DOMContentLoaded', screenMap);
         drawSAB();
     } else if (window.Uint16Array) {
         console.log("Snowfall without shared buffer.");
-        // snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
         snowflakesUInt16 = new Uint16Array(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
         SnowWorker.postMessage(snowflakesUInt16);
         SnowWorker.postMessage({
@@ -210,14 +203,16 @@ if (window.Worker) {
             width: snowCanvas.width,
             height: pageHeight
         });
-        window.addEventListener('resize', screenMap);
-        window.addEventListener('DOMContentLoaded', screenMap);
         SnowWorker.onmessage = (msg) =>{
             draw(msg);
         };
     } else {
         console.log("Snowfall requires SharedArrayBuffer.");
     }
+
+    window.addEventListener('resize', screenMap);
+    window.addEventListener('DOMContentLoaded', screenMap);
+
 } else {
     console.log("Snowfall requires webworkers because reasons.");
 }
