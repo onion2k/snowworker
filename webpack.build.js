@@ -37,11 +37,4 @@ const config = {
     ]
 };
 
-// config.plugins.push(
-//     new CopyWebpackPlugin([
-//         { from: 'build/snowfall.js', to: '../dist/snowfall.js' },
-//         { from: 'build/snow.worker.js', to: '../dist/snow.worker.js' }
-//     ])
-// )
-
 module.exports = config;
