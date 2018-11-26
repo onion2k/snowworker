@@ -107,9 +107,6 @@ const pageHeight = document.body.offsetHeight;
 const snowflakesActive = 1500;
 const snowflakesLifetime = 1000;
 
-let snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
-let snowflakesUInt16 = new Uint16Array(snowflakesSAB);
-
 let snowflakes = [];
 
 const snowCanvas = document.createElement('canvas');
@@ -155,19 +152,23 @@ const drawSAB = () => {
 }
 
 if (window.Worker) {
-    SnowWorker.postMessage(snowflakesSAB);
-    SnowWorker.postMessage({
-        type: 'init',
-        active: snowflakesActive,
-        lifetime: snowflakesLifetime,
-        width: snowCanvas.width,
-        height: pageHeight
-    });
+    if (window.SharedArrayBuffer) {
+        let snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
+        let snowflakesUInt16 = new Uint16Array(snowflakesSAB);
+        SnowWorker.postMessage(snowflakesSAB);
+        SnowWorker.postMessage({
+            type: 'init',
+            active: snowflakesActive,
+            lifetime: snowflakesLifetime,
+            width: snowCanvas.width,
+            height: pageHeight
+        });
+        window.addEventListener('resize', screenMap);
+        window.addEventListener('DOMContentLoaded', screenMap);
+        drawSAB();
+    } else {
+        console.log("Snowfall requires SharedArrayBuffer.");
+    }
 } else {
     console.log("Snowfall requires webworkers because reasons.");
 }
-
-window.addEventListener('resize', screenMap);
-window.addEventListener('DOMContentLoaded', screenMap);
-
-drawSAB();
