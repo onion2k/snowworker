@@ -6,6 +6,9 @@ const worker_sab = `
     
     class snowWorkerWW {
         constructor(data){
+            this.gravity = data.gravity || 9.4;
+            console.log(this.gravity);
+            this.wind = data.wind || 0;
             this.active = data.active;
             this.width = data.width;
             this.height = data.height;
@@ -55,11 +58,15 @@ const worker_sab = `
                         f.vy = 40 + (Math.random()*60);
                     }
                 } else {
-                    f.x += (Math.random()*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * this.timefactor;
-                    f.y += (f.vy/deltaDistance) * this.timefactor;
+                    f.x += (Math.random()*this.wind*(f.vx/deltaDistance) - ((f.vx/deltaDistance)/2)) * this.timefactor;
+                    f.y += (f.vy/deltaDistance) * (this.gravity / 9.4) * this.timefactor;
                     if (f.y>this.height) {
                         f.y = 0;
                         f.x = Math.random()*this.width;
+                    } if (f.x<0) {
+                        f.x = this.width;
+                    } if (f.x>this.width) {
+                        f.x = 0;
                     } else {
                         this.platforms.forEach((platform) => {
                             if ( (f.y > platform.top-3 && f.y < platform.top) && (f.x > platform.left && f.x < platform.left+platform.width) && Math.floor(Math.random()*2)%2==0 ) {
@@ -186,6 +193,8 @@ if (window.Worker) {
         SnowWorker.postMessage(snowflakesSAB);
         SnowWorker.postMessage({
             type: 'init',
+            gravity: snowWorkerConfig.gravity,
+            wind: snowWorkerConfig.wind,
             active: snowflakesActive,
             lifetime: snowflakesLifetime,
             width: snowCanvas.width,
@@ -198,6 +207,8 @@ if (window.Worker) {
         SnowWorker.postMessage(snowflakesUInt16);
         SnowWorker.postMessage({
             type: 'init',
+            gravity: snowWorkerConfig.gravity,
+            wind: snowWorkerConfig.wind,
             active: snowflakesActive,
             lifetime: snowflakesLifetime,
             width: snowCanvas.width,
