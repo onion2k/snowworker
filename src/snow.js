@@ -186,6 +186,10 @@ if (window.Worker) {
     let blob_sab = new Blob([worker_sab], { type: "text/javascript" });
     SnowWorker = new Worker(window.URL.createObjectURL(blob_sab));
 
+    if (!window.snowWorkerConfig) {
+        snowWorkerConfig = {};
+    }
+
     if (window.SharedArrayBuffer) {
         console.log("Snowfall with shared buffer.");
         snowflakesSAB = new SharedArrayBuffer(Uint16Array.BYTES_PER_ELEMENT * snowflakesActive * 3);
