@@ -7,7 +7,6 @@ const worker_sab = `
     class snowWorkerWW {
         constructor(data){
             this.gravity = data.gravity || 9.4;
-            console.log(this.gravity);
             this.wind = data.wind || 0;
             this.active = data.active;
             this.width = data.width;
